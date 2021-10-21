@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+
+  packet_reader:
+    build: ./packet_reader
+    network_mode: "host"
+    volumes:
+      - /app/target
+      - ./packet_reader:/app
