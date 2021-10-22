@@ -1,18 +1,14 @@
-FROM debian:bullseye
+FROM golang:alpine
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk --update add \
+        build-base \
+        gcc \
+        libpcap-dev
 
-RUN apt-get update -yqq && apt-get install -y \
-    build-essential \
-    libpcap-dev \
-    tree \
-    gcc \
-    && rm -rf /var/lib/apt/lists/*
+WORKDIR /go/src/app
+COPY go.mod go.sum . 
+RUN go mod download
+COPY main.go .
+RUN go build
 
-WORKDIR /app
-COPY src src/
-RUN gcc -v -O3 -o main -Wall src/* -lpcap
-RUN mkdir target
-RUN chmod +x main
-RUN mv main target/
-RUN tree .
-
-ENTRYPOINT [ "/app/target/main", "enp71s0"]
+CMD ["go", "run", "."]
